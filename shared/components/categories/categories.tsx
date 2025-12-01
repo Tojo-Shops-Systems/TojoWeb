@@ -23,7 +23,7 @@ const Categories = () => {
     ];
 
     return (
-        <div className="w-full bg-white border-b border-gray-100 py-6 mt-4">
+        <div className="hidden md:block w-full bg-white border-b border-gray-100 py-6 mt-4">
             <div className="w-full max-w-7xl mx-auto px-4">
                 <div className="flex items-center justify-center overflow-x-auto no-scrollbar gap-8">
 
