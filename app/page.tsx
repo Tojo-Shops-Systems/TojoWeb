@@ -80,7 +80,7 @@ export default function Home() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Header products={allProducts} onProductClick={handleProductClick} />
+      <Header products={allProducts} onProductClick={handleProductClick} onCategoryClick={handleCategoryClick} />
       <Categories onCategoryClick={handleCategoryClick} />
 
       <main className="max-w-7xl mx-auto px-6 py-8">

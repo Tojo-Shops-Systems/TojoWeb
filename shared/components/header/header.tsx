@@ -11,6 +11,7 @@ import Image from 'next/image';
 interface HeaderProps {
     products?: Product[];
     onProductClick?: (productCode: string) => void;
+    onCategoryClick?: (categoryId: string) => void;
 }
 
 const SearchBar = ({ products, onProductClick }: { products: Product[], onProductClick?: (code: string) => void }) => {
@@ -110,7 +111,7 @@ const SearchBar = ({ products, onProductClick }: { products: Product[], onProduc
     );
 };
 
-const Header = ({ products = [], onProductClick }: HeaderProps) => {
+const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -171,7 +172,7 @@ const Header = ({ products = [], onProductClick }: HeaderProps) => {
                 </div>
             </header>
 
-            <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+            <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} onCategoryClick={onCategoryClick} />
         </>
     );
 }

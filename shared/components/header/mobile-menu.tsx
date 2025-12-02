@@ -1,15 +1,27 @@
 'use client';
 
-import { X, ChevronRight, House, Tv, Headphones, Cable, ShieldCheck, Sparkles, MapPin, Plus } from 'lucide-react';
+import { X, ChevronRight, House, Tv, Headphones, Cable, ShieldCheck, Sparkles, MapPin, Plus, Grid } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Env } from '../../../env';
+import { Category } from '../../types/types';
 
 interface MobileMenuProps {
     isOpen: boolean;
     onClose: () => void;
+    onCategoryClick?: (categoryId: string) => void;
 }
 
-const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
+interface ApiResponse {
+    result: boolean;
+    msg: string;
+    data: Category[];
+}
+
+const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [showMore, setShowMore] = useState(false);
+
     // Prevent scrolling when menu is open
     useEffect(() => {
         if (isOpen) {
@@ -22,14 +34,31 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
         };
     }, [isOpen]);
 
-    const categories = [
-        { name: 'SMART HOME', icon: House, href: '/smart-home' },
-        { name: 'TV Y VIDEO', icon: Tv, href: '/tv-video' },
-        { name: 'AUDIO', icon: Headphones, href: '/audio' },
-        { name: 'CABLES', icon: Cable, href: '/cables' },
-        { name: 'SEGURIDAD', icon: ShieldCheck, href: '/seguridad' },
-        { name: 'LO NUEVO', icon: Sparkles, href: '/new' },
-    ];
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch(Env.allCategories);
+                const data: ApiResponse = await response.json();
+                if (data.result) {
+                    setCategories(data.data);
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
+    const handleCategoryClick = (categoryId: string) => {
+        if (onCategoryClick) {
+            onCategoryClick(categoryId);
+        }
+        onClose();
+    };
+
+    const mainCategories = categories.slice(0, 6);
+    const moreCategories = categories.slice(6);
 
     return (
         <>
@@ -58,24 +87,45 @@ const MobileMenu = ({ isOpen, onClose }: MobileMenuProps) => {
                 {/* Content */}
                 <div className="p-4 overflow-y-auto h-[calc(100%-60px)]">
                     <div className="flex flex-col gap-2">
-                        {categories.map((cat, index) => (
-                            <Link
-                                key={index}
-                                href={cat.href}
-                                className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors group"
-                                onClick={onClose}
+                        {mainCategories.map((cat) => (
+                            <button
+                                key={cat.id}
+                                onClick={() => handleCategoryClick(cat.id)}
+                                className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors group w-full text-left"
                             >
-                                <cat.icon className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
-                                <span className="text-sm font-medium">{cat.name}</span>
-                            </Link>
+                                <Grid className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                                <span className="text-sm font-medium uppercase">{cat.category_name}</span>
+                            </button>
                         ))}
 
-                        <div className="h-px bg-gray-700 my-2" />
+                        {moreCategories.length > 0 && (
+                            <>
+                                <button
+                                    onClick={() => setShowMore(!showMore)}
+                                    className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors w-full text-left"
+                                >
+                                    <Plus className={`w-5 h-5 text-blue-500 transition-transform duration-300 ${showMore ? 'rotate-45' : 'rotate-0'}`} strokeWidth={2.5} />
+                                    <span className="text-sm font-medium">
+                                        {showMore ? 'MENOS CATEGORÍAS' : 'MÁS CATEGORÍAS'}
+                                    </span>
+                                </button>
 
-                        <Link href="/categories" className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors" onClick={onClose}>
-                            <Plus className="w-5 h-5 text-blue-500" strokeWidth={2.5} />
-                            <span className="text-sm font-medium">MÁS CATEGORÍAS</span>
-                        </Link>
+                                <div className={`flex flex-col pl-4 border-l border-gray-700 ml-2 transition-all duration-300 ease-in-out overflow-hidden ${showMore ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                                    {moreCategories.map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            onClick={() => handleCategoryClick(cat.id)}
+                                            className="flex items-center gap-4 py-3 text-gray-400 hover:text-white transition-colors group w-full text-left"
+                                        >
+                                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                            <span className="text-sm font-medium uppercase">{cat.category_name}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        <div className="h-px bg-gray-700 my-2" />
 
                         <Link href="/stores" className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors" onClick={onClose}>
                             <MapPin className="w-5 h-5 text-orange-500" strokeWidth={1.5} />
