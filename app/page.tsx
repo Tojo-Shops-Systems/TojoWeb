@@ -6,13 +6,7 @@ import Footer from "../shared/components/footer/footer";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Env } from "../env";
-
-interface Product {
-  product_code: string;
-  productName: string;
-  product_url_image: string;
-  price: number;
-}
+import { Product } from "../shared/types/types";
 
 interface ApiResponse {
   result: boolean;
@@ -44,7 +38,7 @@ export default function Home() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Header />
+      <Header products={products} />
       <Categories />
 
       <main className="max-w-7xl mx-auto px-6 py-8">
