@@ -94,7 +94,7 @@ const SearchBar = ({ products, onProductClick }: { products: Product[], onProduc
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium text-gray-800 truncate">{product.productName}</p>
-                                            <p className="text-xs text-blue-500 font-bold">${product.price.toFixed(2)}</p>
+                                            <p className="text-xs text-red-600 font-bold">${product.price.toFixed(2)}</p>
                                         </div>
                                     </button>
                                 </li>
@@ -144,10 +144,10 @@ const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps)
                             {/* Action Buttons */}
                             <div className="flex items-center gap-4 shrink-0">
                                 {/* Login (Desktop Only) */}
-                                <button className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors">
+                                <Link href="/auth" className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors">
                                     <User className="w-5 h-5" />
                                     <span className="text-sm font-medium">Iniciar Sesión</span>
-                                </button>
+                                </Link>
 
                                 {/* Cart */}
                                 <button className="flex items-center gap-2 md:px-4 md:py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors relative">
@@ -165,7 +165,7 @@ const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps)
                         {/* Search Bar (Mobile Only) */}
                         <div className="w-full md:hidden">
                             <SearchBar products={products} onProductClick={onProductClick} />
-                            <div className="h-[1px] bg-blue-500 w-full mt-2"></div>
+                            <div className="h-[1px] bg-red-600 w-full mt-2"></div>
                         </div>
 
                     </div>

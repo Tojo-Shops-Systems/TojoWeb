@@ -86,7 +86,7 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-6 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -127,12 +127,12 @@ export default function Home() {
                 <p className="text-gray-400 text-xs mb-3">{product.product_code}</p>
 
                 {/* Price */}
-                <p className="text-blue-500 text-lg font-bold mb-4">
+                <p className="text-red-600 text-lg font-bold mb-4">
                   ${product.price ? product.price.toFixed(2) : '0.00'}
                 </p>
 
                 {/* Add to Cart Button */}
-                <button className="w-full py-2 px-4 border border-blue-500 text-blue-500 text-xs font-bold rounded hover:bg-blue-500 hover:text-white transition-colors uppercase">
+                <button className="w-full py-2 px-4 border border-red-600 text-red-600 text-xs font-bold rounded hover:bg-red-600 hover:text-white transition-colors uppercase">
                   Añadir al carrito
                 </button>
               </div>

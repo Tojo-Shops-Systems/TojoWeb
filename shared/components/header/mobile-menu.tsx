@@ -76,7 +76,7 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
             >
                 {/* Header Tabs */}
                 <div className="flex items-center border-b border-gray-700">
-                    <button className="flex-1 py-4 text-white font-bold text-sm border-b-2 border-blue-500">
+                    <button className="flex-1 py-4 text-white font-bold text-sm border-b-2 border-red-600">
                         MENU
                     </button>
                     <button className="flex-1 py-4 text-gray-400 font-bold text-sm hover:text-white transition-colors">
@@ -93,7 +93,7 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
                                 onClick={() => handleCategoryClick(cat.id)}
                                 className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors group w-full text-left"
                             >
-                                <Grid className="w-5 h-5 text-blue-500" strokeWidth={1.5} />
+                                <Grid className="w-5 h-5 text-red-600" strokeWidth={1.5} />
                                 <span className="text-sm font-medium uppercase">{cat.category_name}</span>
                             </button>
                         ))}
@@ -104,7 +104,7 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
                                     onClick={() => setShowMore(!showMore)}
                                     className="flex items-center gap-4 py-3 text-gray-300 hover:text-white transition-colors w-full text-left"
                                 >
-                                    <Plus className={`w-5 h-5 text-blue-500 transition-transform duration-300 ${showMore ? 'rotate-45' : 'rotate-0'}`} strokeWidth={2.5} />
+                                    <Plus className={`w-5 h-5 text-red-600 transition-transform duration-300 ${showMore ? 'rotate-45' : 'rotate-0'}`} strokeWidth={2.5} />
                                     <span className="text-sm font-medium">
                                         {showMore ? 'MENOS CATEGORÍAS' : 'MÁS CATEGORÍAS'}
                                     </span>
@@ -117,7 +117,7 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
                                             onClick={() => handleCategoryClick(cat.id)}
                                             className="flex items-center gap-4 py-3 text-gray-400 hover:text-white transition-colors group w-full text-left"
                                         >
-                                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                            <div className="w-1.5 h-1.5 bg-red-600 rounded-full"></div>
                                             <span className="text-sm font-medium uppercase">{cat.category_name}</span>
                                         </button>
                                     ))}

@@ -59,7 +59,7 @@ const Categories = ({ onCategoryClick }: CategoriesProps) => {
                                 onClick={() => onCategoryClick(cat.id)}
                                 className="flex items-center gap-2 group whitespace-nowrap"
                             >
-                                <span className="text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
+                                <span className="text-sm font-medium text-gray-600 group-hover:text-red-600 transition-colors uppercase tracking-wide">
                                     {cat.category_name}
                                 </span>
                             </button>
@@ -71,17 +71,17 @@ const Categories = ({ onCategoryClick }: CategoriesProps) => {
                                 onClick={() => setShowMore(!showMore)}
                                 className="flex items-center gap-2 group whitespace-nowrap"
                             >
-                                <span className="text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
+                                <span className="text-sm font-medium text-gray-600 group-hover:text-red-600 transition-colors uppercase tracking-wide">
                                     {showMore ? 'MENOS CATEGORÍAS' : 'MÁS CATEGORÍAS'}
                                 </span>
-                                <Plus className={`w-4 h-4 text-blue-600 transition-transform duration-300 ${showMore ? 'rotate-45' : 'rotate-0'}`} strokeWidth={2.5} />
+                                <Plus className={`w-4 h-4 text-red-600 transition-transform duration-300 ${showMore ? 'rotate-45' : 'rotate-0'}`} strokeWidth={2.5} />
                             </button>
                         )}
 
                         {/* Stores Link */}
                         <Link href="/stores" className="flex items-center gap-2 group whitespace-nowrap">
                             <MapPin className="w-4 h-4 text-orange-500 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
-                            <span className="text-sm font-medium text-blue-500 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
+                            <span className="text-sm font-medium text-red-600 group-hover:text-red-700 transition-colors uppercase tracking-wide">
                                 TIENDAS
                             </span>
                         </Link>
@@ -98,17 +98,17 @@ const Categories = ({ onCategoryClick }: CategoriesProps) => {
                             >
                                 <div className="flex items-center gap-3">
                                     {/* Small grid icon placeholder matching the image */}
-                                    <div className="w-2 h-2 bg-blue-500 rounded-sm grid grid-cols-2 gap-[1px]">
+                                    <div className="w-2 h-2 bg-red-600 rounded-sm grid grid-cols-2 gap-[1px]">
                                         <div className="bg-white rounded-[0.5px]"></div>
                                         <div className="bg-white rounded-[0.5px]"></div>
                                         <div className="bg-white rounded-[0.5px]"></div>
                                         <div className="bg-white rounded-[0.5px]"></div>
                                     </div>
-                                    <span className="text-sm font-bold text-blue-500 group-hover:text-blue-700 uppercase tracking-wide">
+                                    <span className="text-sm font-bold text-red-600 group-hover:text-red-700 uppercase tracking-wide">
                                         {cat.category_name}
                                     </span>
                                 </div>
-                                <Plus className="w-4 h-4 text-blue-500 group-hover:text-blue-700 -rotate-90" strokeWidth={2.5} />
+                                <Plus className="w-4 h-4 text-red-600 group-hover:text-red-700 -rotate-90" strokeWidth={2.5} />
                             </button>
                         ))}
                     </div>
