@@ -17,6 +17,7 @@ interface ApiResponse {
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
@@ -27,7 +28,12 @@ export default function Home() {
         const response = await fetch(Env.showProducts);
         const data: ApiResponse = await response.json();
         if (data.result) {
-          setProducts(data.data);
+          const mappedProducts = data.data.map((item: any) => ({
+            ...item,
+            price: item.product_price !== undefined ? item.product_price : item.price
+          }));
+          setProducts(mappedProducts);
+          setAllProducts(mappedProducts);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -44,10 +50,30 @@ export default function Home() {
     setIsPanelOpen(true);
   };
 
+  const handleCategoryClick = async (categoryId: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${Env.showProductWithCategory}${categoryId}`);
+      const data: ApiResponse = await response.json();
+      if (data.result) {
+        // Map the response to ensure 'price' is available
+        const mappedProducts = data.data.map((item: any) => ({
+          ...item,
+          price: item.product_price !== undefined ? item.product_price : item.price
+        }));
+        setProducts(mappedProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching filtered products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="bg-white min-h-screen">
-      <Header products={products} onProductClick={handleProductClick} />
-      <Categories />
+      <Header products={allProducts} onProductClick={handleProductClick} />
+      <Categories onCategoryClick={handleCategoryClick} />
 
       <main className="max-w-7xl mx-auto px-6 py-8">
         {loading ? (
@@ -82,7 +108,7 @@ export default function Home() {
 
                 {/* Price */}
                 <p className="text-blue-500 text-lg font-bold mb-4">
-                  ${product.price.toFixed(2)}
+                  ${product.price ? product.price.toFixed(2) : '0.00'}
                 </p>
 
                 {/* Add to Cart Button */}

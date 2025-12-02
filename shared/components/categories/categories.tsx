@@ -12,7 +12,11 @@ interface ApiResponse {
     data: Category[];
 }
 
-const Categories = () => {
+interface CategoriesProps {
+    onCategoryClick: (categoryId: string) => void;
+}
+
+const Categories = ({ onCategoryClick }: CategoriesProps) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [showMore, setShowMore] = useState(false);
@@ -50,15 +54,15 @@ const Categories = () => {
 
                         {/* Main Categories */}
                         {mainCategories.map((cat) => (
-                            <Link
+                            <button
                                 key={cat.id}
-                                href={`/category/${cat.id}`}
+                                onClick={() => onCategoryClick(cat.id)}
                                 className="flex items-center gap-2 group whitespace-nowrap"
                             >
                                 <span className="text-sm font-medium text-gray-600 group-hover:text-blue-600 transition-colors uppercase tracking-wide">
                                     {cat.category_name}
                                 </span>
-                            </Link>
+                            </button>
                         ))}
 
                         {/* Toggle Button */}
@@ -87,10 +91,10 @@ const Categories = () => {
                     {/* Expandable Section for More Categories */}
                     <div className={`flex flex-col pt-4 border-t border-gray-100 transition-all duration-300 ease-in-out overflow-hidden ${showMore ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
                         {moreCategories.map((cat) => (
-                            <Link
+                            <button
                                 key={cat.id}
-                                href={`/category/${cat.id}`}
-                                className="flex items-center justify-between py-3 px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors group"
+                                onClick={() => onCategoryClick(cat.id)}
+                                className="flex items-center justify-between py-3 px-4 border-b border-gray-100 hover:bg-gray-50 transition-colors group w-full"
                             >
                                 <div className="flex items-center gap-3">
                                     {/* Small grid icon placeholder matching the image */}
@@ -105,7 +109,7 @@ const Categories = () => {
                                     </span>
                                 </div>
                                 <Plus className="w-4 h-4 text-blue-500 group-hover:text-blue-700 -rotate-90" strokeWidth={2.5} />
-                            </Link>
+                            </button>
                         ))}
                     </div>
 

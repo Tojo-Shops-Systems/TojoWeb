@@ -4,12 +4,7 @@ export interface Product {
     product_url_image: string;
     price: number;
 }
-export interface Product {
-    product_code: string;
-    productName: string;
-    product_url_image: string;
-    price: number;
-}
+
 
 export interface ProductDetail {
     product_code: string;
