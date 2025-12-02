@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -9,9 +10,10 @@ import Image from 'next/image';
 
 interface HeaderProps {
     products?: Product[];
+    onProductClick?: (productCode: string) => void;
 }
 
-const SearchBar = ({ products }: { products: Product[] }) => {
+const SearchBar = ({ products, onProductClick }: { products: Product[], onProductClick?: (code: string) => void }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const searchRef = useRef<HTMLDivElement>(null);
@@ -71,12 +73,14 @@ const SearchBar = ({ products }: { products: Product[] }) => {
                         <ul>
                             {filteredProducts.map((product, index) => (
                                 <li key={index} className="border-b border-gray-50 last:border-none">
-                                    <Link
-                                        href="#"
-                                        className="flex items-center gap-4 p-3 hover:bg-gray-50 transition-colors"
+                                    <button
+                                        className="w-full flex items-center gap-4 p-3 hover:bg-gray-50 transition-colors text-left"
                                         onClick={() => {
                                             setIsSearchFocused(false);
                                             setSearchTerm('');
+                                            if (onProductClick) {
+                                                onProductClick(product.product_code);
+                                            }
                                         }}
                                     >
                                         <div className="relative w-10 h-10 shrink-0 bg-white rounded border border-gray-100 p-1">
@@ -91,7 +95,7 @@ const SearchBar = ({ products }: { products: Product[] }) => {
                                             <p className="text-sm font-medium text-gray-800 truncate">{product.productName}</p>
                                             <p className="text-xs text-blue-500 font-bold">${product.price.toFixed(2)}</p>
                                         </div>
-                                    </Link>
+                                    </button>
                                 </li>
                             ))}
                         </ul>
@@ -106,7 +110,7 @@ const SearchBar = ({ products }: { products: Product[] }) => {
     );
 };
 
-const Header = ({ products = [] }: HeaderProps) => {
+const Header = ({ products = [], onProductClick }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -133,7 +137,7 @@ const Header = ({ products = [] }: HeaderProps) => {
 
                             {/* Search Bar (Desktop) */}
                             <div className="hidden md:block flex-1 max-w-md mx-6">
-                                <SearchBar products={products} />
+                                <SearchBar products={products} onProductClick={onProductClick} />
                             </div>
 
                             {/* Action Buttons */}
@@ -159,7 +163,7 @@ const Header = ({ products = [] }: HeaderProps) => {
 
                         {/* Search Bar (Mobile Only) */}
                         <div className="w-full md:hidden">
-                            <SearchBar products={products} />
+                            <SearchBar products={products} onProductClick={onProductClick} />
                             <div className="h-[1px] bg-blue-500 w-full mt-2"></div>
                         </div>
 

@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Env } from "../env";
 import { Product } from "../shared/types/types";
+import ProductPanel from "../shared/components/product/product";
 
 interface ApiResponse {
   result: boolean;
@@ -17,6 +18,8 @@ interface ApiResponse {
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -36,9 +39,14 @@ export default function Home() {
     fetchProducts();
   }, []);
 
+  const handleProductClick = (productCode: string) => {
+    setSelectedProductCode(productCode);
+    setIsPanelOpen(true);
+  };
+
   return (
     <div className="bg-white min-h-screen">
-      <Header products={products} />
+      <Header products={products} onProductClick={handleProductClick} />
       <Categories />
 
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -49,7 +57,11 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {products.map((product, index) => (
-              <div key={index} className="flex flex-col items-center p-4 hover:shadow-lg transition-shadow rounded-lg bg-white group">
+              <div
+                key={index}
+                className="flex flex-col items-center p-4 hover:shadow-lg transition-shadow rounded-lg bg-white group cursor-pointer"
+                onClick={() => handleProductClick(product.product_code)}
+              >
                 {/* Product Image */}
                 <div className="relative w-full h-48 mb-4">
                   <Image
@@ -84,6 +96,11 @@ export default function Home() {
       </main>
 
       <Footer />
+      <ProductPanel
+        isOpen={isPanelOpen}
+        onClose={() => setIsPanelOpen(false)}
+        productCode={selectedProductCode}
+      />
     </div>
   );
 }
