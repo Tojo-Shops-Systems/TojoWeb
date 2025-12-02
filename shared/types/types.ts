@@ -4,6 +4,12 @@ export interface Product {
     product_url_image: string;
     price: number;
 }
+export interface Product {
+    product_code: string;
+    productName: string;
+    product_url_image: string;
+    price: number;
+}
 
 export interface ProductDetail {
     product_code: string;
@@ -12,4 +18,9 @@ export interface ProductDetail {
     product_description: string;
     product_price: number;
     category_id: number | null;
+}
+
+export interface Category {
+    id: string;
+    category_name: string;
 }
