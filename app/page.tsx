@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Env } from "../env";
 
 interface Product {
+  product_code: string;
   productName: string;
   product_url_image: string;
   price: number;
@@ -69,6 +70,9 @@ export default function Home() {
                 <h3 className="text-gray-600 text-sm font-medium text-center mb-2 line-clamp-2 h-10">
                   {product.productName}
                 </h3>
+
+                {/* Product Code */}
+                <p className="text-gray-400 text-xs mb-3">{product.product_code}</p>
 
                 {/* Price */}
                 <p className="text-blue-500 text-lg font-bold mb-4">
