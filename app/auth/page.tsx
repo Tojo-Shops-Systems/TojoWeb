@@ -61,7 +61,7 @@ export default function AuthPage() {
 
             if (adminResponse.ok) {
                 console.log('Admin Login Success, redirecting...');
-                window.location.href = 'https://admin.tojoshop.com';
+                //window.location.href = 'https://admin.tojoshop.com';
                 return;
             }
 
