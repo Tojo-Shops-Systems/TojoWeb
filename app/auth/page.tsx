@@ -43,6 +43,10 @@ export default function AuthPage() {
 
         try {
             console.log('Attempting Admin Login to:', Env.login);
+            await fetch("https://api.tojoshop.com/sanctum/csrf-cookie", {
+                credentials: "include"
+            });
+
             // 1. Attempt Admin Login
             const adminResponse = await fetch(Env.login, {
                 method: 'POST',
