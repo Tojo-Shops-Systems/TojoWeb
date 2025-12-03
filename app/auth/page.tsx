@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, Smartphone, Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Mail, Smartphone, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Env } from '../../env';
 
 export default function AuthPage() {
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [showRegisterPassword, setShowRegisterPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     // Login State
     const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -31,10 +36,76 @@ export default function AuthPage() {
         }));
     };
 
-    const handleLoginSubmit = (e: React.FormEvent) => {
+    const handleLoginSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Login:', { loginIdentifier, loginPassword });
-        // Implement login logic here
+        setError('');
+        setLoading(true);
+
+        try {
+            console.log('Attempting Admin Login to:', Env.login);
+            // 1. Attempt Admin Login
+            const adminResponse = await fetch(Env.login, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: loginIdentifier,
+                    password: loginPassword,
+                }),
+            });
+
+            console.log('Admin Response Status:', adminResponse.status);
+
+            if (adminResponse.ok) {
+                console.log('Admin Login Success, redirecting...');
+                window.location.href = 'https://admin.tojoshop.com';
+                return;
+            }
+
+            console.log('Admin Login Failed, attempting Customer Login to:', Env.loginCustomer);
+
+            // 2. If Admin Login fails, Attempt Customer Login
+            const customerResponse = await fetch(Env.loginCustomer, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: loginIdentifier,
+                    password: loginPassword,
+                }),
+            });
+
+            console.log('Customer Response Status:', customerResponse.status);
+
+            if (customerResponse.ok) {
+                console.log('Customer Login Success, redirecting...');
+                router.push('/');
+                return;
+            } else {
+                // Both failed
+                console.warn('Both logins failed.');
+                setError('Credenciales incorrectas. Por favor verifica tu correo y contraseña.');
+            }
+
+        } catch (err: any) {
+            console.error('Login Critical Error:', err);
+            console.error('Error Name:', err.name);
+            console.error('Error Message:', err.message);
+            // NetworkError usually has no status code, but let's check if it's a fetch error
+            if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+                setError('Error de conexión (CORS o Red). Revisa la consola para más detalles.');
+            } else {
+                setError(`Error inesperado: ${err.message}`);
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -65,6 +136,13 @@ export default function AuthPage() {
                     <div className="text-center text-gray-500 mb-8 text-sm">
                         Correo electrónico de steren.com.mx
                     </div>
+
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-sm flex items-center gap-3 text-red-600 text-sm">
+                            <AlertCircle className="w-5 h-5 shrink-0" />
+                            <p>{error}</p>
+                        </div>
+                    )}
 
                     <form onSubmit={handleLoginSubmit} className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
 
@@ -103,8 +181,19 @@ export default function AuthPage() {
                             </div>
 
                             <div className="md:col-span-2 flex flex-col items-start gap-2">
-                                <button type="submit" className="px-6 py-2 border border-red-600 text-red-600 text-xs font-bold rounded-sm hover:bg-red-50 transition-colors uppercase">
-                                    Iniciar Sesión
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="px-6 py-2 border border-red-600 text-red-600 text-xs font-bold rounded-sm hover:bg-red-50 transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {loading ? (
+                                        <>
+                                            <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                                            <span>Cargando...</span>
+                                        </>
+                                    ) : (
+                                        'Iniciar Sesión'
+                                    )}
                                 </button>
                                 <Link href="#" className="text-xs text-red-600 hover:underline">
                                     ¿Olvidaste tu contraseña?
