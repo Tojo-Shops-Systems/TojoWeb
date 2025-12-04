@@ -43,9 +43,6 @@ export default function AuthPage() {
 
         try {
             console.log('Attempting Admin Login to:', Env.login);
-            await fetch("https://tojosystemgroup.tech", {
-                credentials: "include"
-            });
 
             // 1. Attempt Admin Login
             const adminResponse = await fetch(Env.login, {
