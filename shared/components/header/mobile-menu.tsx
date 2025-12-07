@@ -149,7 +149,7 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick, isLoggedIn = false }: Mo
                                     : 'Inicia sesión para acceder a tu cuenta, ver tus pedidos y más.'}
                             </p>
                             <Link
-                                href="/auth"
+                                href={isLoggedIn ? "/account" : "/auth"}
                                 onClick={onClose}
                                 className="w-full py-3 bg-red-600 text-white font-bold rounded-sm hover:bg-red-700 transition-colors uppercase text-sm text-center"
                             >

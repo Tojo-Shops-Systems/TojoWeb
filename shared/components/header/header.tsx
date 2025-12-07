@@ -163,7 +163,7 @@ const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps)
                             {/* Action Buttons */}
                             <div className="flex items-center gap-4 shrink-0">
                                 {/* Login (Desktop Only) */}
-                                <Link href="/auth" className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors">
+                                <Link href={isLoggedIn ? "/account" : "/auth"} className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors">
                                     <User className="w-5 h-5" />
                                     <span className="text-sm font-medium">{isLoggedIn ? 'Mi Cuenta' : 'Iniciar Sesión'}</span>
                                 </Link>
