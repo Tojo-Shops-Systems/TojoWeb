@@ -10,4 +10,5 @@ export const Env = {
     login: `${BASE_URL}/api/auth/login`,
     logout: `${BASE_URL}/api/auth/logout`,
     logueado: `${BASE_URL}/api/logueado`,
+    user: `${BASE_URL}/api/user`,
 };
