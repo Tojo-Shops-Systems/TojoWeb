@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Smartphone, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, Smartphone, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { Env } from '../../env';
 
 export default function AuthPage() {
@@ -13,6 +13,9 @@ export default function AuthPage() {
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [registerError, setRegisterError] = useState('');
+    const [registerSuccess, setRegisterSuccess] = useState('');
+    const [registerLoading, setRegisterLoading] = useState(false);
 
     // Login State
     const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -109,10 +112,69 @@ export default function AuthPage() {
         }
     };
 
-    const handleRegisterSubmit = (e: React.FormEvent) => {
+    const handleRegisterSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Register:', registerData);
-        // Implement register logic here
+        setRegisterError('');
+        setRegisterSuccess('');
+        setRegisterLoading(true);
+
+        // Client-side validation
+        if (registerData.password !== registerData.password_confirmation) {
+            setRegisterError('Las contraseñas no coinciden.');
+            setRegisterLoading(false);
+            return;
+        }
+
+        if (!registerData.acceptTerms) {
+            setRegisterError('Debes aceptar los términos y condiciones.');
+            setRegisterLoading(false);
+            return;
+        }
+
+        try {
+            const response = await fetch(Env.registerCustomer, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    name: registerData.name,
+                    email: registerData.email,
+                    phone: registerData.phone,
+                    password: registerData.password,
+                    password_confirmation: registerData.password_confirmation,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.result) {
+                setRegisterSuccess('¡Registro exitoso! Por favor inicia sesión con tus nuevas credenciales.');
+                setRegisterData({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    password: '',
+                    password_confirmation: '',
+                    acceptTerms: false
+                });
+            } else {
+                // Handle validation errors or other API errors
+                if (response.status === 422) {
+                    // Laravel validation errors
+                    const errorMessages = Object.values(data).flat().join(' ');
+                    setRegisterError(errorMessages || 'Error en la validación de datos.');
+                } else {
+                    setRegisterError(data.msg || 'Error al registrar el usuario.');
+                }
+            }
+        } catch (error) {
+            console.error("Registration Error:", error);
+            setRegisterError('Error de conexión. Por favor intenta de nuevo.');
+        } finally {
+            setRegisterLoading(false);
+        }
     };
 
     return (
@@ -212,6 +274,20 @@ export default function AuthPage() {
                         <h2 className="text-2xl font-medium text-gray-600">Crear una cuenta</h2>
                         <div className="h-px bg-red-600 flex-1"></div>
                     </div>
+
+                    {registerSuccess && (
+                        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-sm flex items-center gap-3 text-green-600 text-sm">
+                            <CheckCircle2 className="w-5 h-5 shrink-0" />
+                            <p>{registerSuccess}</p>
+                        </div>
+                    )}
+
+                    {registerError && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-sm flex items-center gap-3 text-red-600 text-sm">
+                            <AlertCircle className="w-5 h-5 shrink-0" />
+                            <p>{registerError}</p>
+                        </div>
+                    )}
 
                     <form onSubmit={handleRegisterSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -331,7 +407,14 @@ export default function AuthPage() {
                                 type="submit"
                                 className="w-full md:w-auto px-8 py-3 bg-red-600 text-white font-bold rounded-sm hover:bg-red-700 transition-colors uppercase text-sm"
                             >
-                                Crear una cuenta
+                                {registerLoading ? (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>Registrando...</span>
+                                    </div>
+                                ) : (
+                                    'Crear una cuenta'
+                                )}
                             </button>
                         </div>
                     </form>
