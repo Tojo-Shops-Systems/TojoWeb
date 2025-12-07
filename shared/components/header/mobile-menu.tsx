@@ -88,7 +88,7 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick, isLoggedIn = false }: Mo
                         onClick={() => setActiveTab('account')}
                         className={`flex-1 py-4 text-sm font-bold transition-colors ${activeTab === 'account' ? 'text-white border-b-2 border-red-600' : 'text-gray-400 hover:text-white'}`}
                     >
-                        MI CUENTA
+                        {isLoggedIn ? 'MI CUENTA' : 'INICIAR SESIÓN'}
                     </button>
                 </div>
 

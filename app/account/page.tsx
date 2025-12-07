@@ -23,16 +23,23 @@ export default function AccountPage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
+                console.log('Fetching user data from:', Env.user);
                 const response = await fetch(Env.user, {
                     credentials: 'include'
                 });
 
+                console.log('User fetch response status:', response.status);
+
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('User fetch data:', data);
                     if (data.result && data.user) {
                         setUser(data.user);
+                    } else {
+                        console.warn('User data structure mismatch or missing user:', data);
                     }
                 } else {
+                    console.warn('User fetch failed, redirecting to auth');
                     // If not authenticated, redirect to login
                     router.push('/auth');
                 }
@@ -59,20 +66,8 @@ export default function AccountPage() {
     };
 
     const handleCategoryClick = (categoryId: string) => {
-        // Navigate to home with category filter or specific category page
-        // For now, just redirect to home as that's where filtering happens
         router.push(`/?category=${categoryId}`);
     };
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full animate-spin"></div>
-            </div>
-        );
-    }
-
-    if (!user) return null;
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -130,8 +125,19 @@ export default function AccountPage() {
                                 <div>
                                     <h3 className="text-sm font-bold text-gray-700 mb-4">Información de contacto</h3>
                                     <div className="space-y-1 mb-4">
-                                        <p className="text-sm text-gray-600">{user.name}</p>
-                                        <p className="text-sm text-gray-600">{user.email}</p>
+                                        {loading ? (
+                                            <div className="animate-pulse space-y-2">
+                                                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                                                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                                            </div>
+                                        ) : user ? (
+                                            <>
+                                                <p className="text-sm text-gray-600">{user.name}</p>
+                                                <p className="text-sm text-gray-600">{user.email}</p>
+                                            </>
+                                        ) : (
+                                            <p className="text-sm text-red-500">No se pudo cargar la información.</p>
+                                        )}
                                     </div>
                                     <div className="flex gap-4 text-sm">
                                         <Link href="#" className="text-blue-500 hover:underline">Editar</Link>
