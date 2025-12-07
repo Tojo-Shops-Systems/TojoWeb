@@ -9,4 +9,5 @@ export const Env = {
     registerCustomer: `${BASE_URL}/api/auth/registerCustomer`,
     login: `${BASE_URL}/api/auth/login`,
     logout: `${BASE_URL}/api/auth/logout`,
+    logueado: `${BASE_URL}/api/logueado`,
 };

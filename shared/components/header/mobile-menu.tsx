@@ -10,6 +10,7 @@ interface MobileMenuProps {
     isOpen: boolean;
     onClose: () => void;
     onCategoryClick?: (categoryId: string) => void;
+    isLoggedIn?: boolean;
 }
 
 interface ApiResponse {
@@ -18,7 +19,7 @@ interface ApiResponse {
     data: Category[];
 }
 
-const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
+const MobileMenu = ({ isOpen, onClose, onCategoryClick, isLoggedIn = false }: MobileMenuProps) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [showMore, setShowMore] = useState(false);
     const [activeTab, setActiveTab] = useState<'menu' | 'account'>('menu');
@@ -143,14 +144,16 @@ const MobileMenu = ({ isOpen, onClose, onCategoryClick }: MobileMenuProps) => {
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full gap-4">
                             <p className="text-gray-400 text-center text-sm mb-4">
-                                Inicia sesión para acceder a tu cuenta, ver tus pedidos y más.
+                                {isLoggedIn
+                                    ? 'Accede a tu panel de control y gestiona tu cuenta.'
+                                    : 'Inicia sesión para acceder a tu cuenta, ver tus pedidos y más.'}
                             </p>
                             <Link
                                 href="/auth"
                                 onClick={onClose}
                                 className="w-full py-3 bg-red-600 text-white font-bold rounded-sm hover:bg-red-700 transition-colors uppercase text-sm text-center"
                             >
-                                Iniciar Sesión
+                                {isLoggedIn ? 'Mi Cuenta' : 'Iniciar Sesión'}
                             </Link>
                         </div>
                     )}

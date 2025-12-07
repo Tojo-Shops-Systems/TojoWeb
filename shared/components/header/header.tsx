@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -7,6 +6,7 @@ import { Menu, ShoppingCart, Search, User, X } from 'lucide-react';
 import MobileMenu from './mobile-menu';
 import { Product } from '../../types/types';
 import Image from 'next/image';
+import { Env } from "../../../env";
 
 interface HeaderProps {
     products?: Product[];
@@ -113,6 +113,25 @@ const SearchBar = ({ products, onProductClick }: { products: Product[], onProduc
 
 const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const response = await fetch(Env.logueado, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                if (data.result) {
+                    setIsLoggedIn(true);
+                }
+            } catch (error) {
+                console.error("Error checking login status:", error);
+            }
+        };
+
+        checkLoginStatus();
+    }, []);
 
     return (
         <>
@@ -146,7 +165,7 @@ const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps)
                                 {/* Login (Desktop Only) */}
                                 <Link href="/auth" className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors">
                                     <User className="w-5 h-5" />
-                                    <span className="text-sm font-medium">Iniciar Sesión</span>
+                                    <span className="text-sm font-medium">{isLoggedIn ? 'Mi Cuenta' : 'Iniciar Sesión'}</span>
                                 </Link>
 
                                 {/* Cart */}
@@ -172,7 +191,7 @@ const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps)
                 </div>
             </header>
 
-            <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} onCategoryClick={onCategoryClick} />
+            <MobileMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} onCategoryClick={onCategoryClick} isLoggedIn={isLoggedIn} />
         </>
     );
 }
