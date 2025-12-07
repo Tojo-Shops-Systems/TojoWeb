@@ -7,6 +7,7 @@ import { User, Package, MapPin, Heart, CreditCard, LogOut, Edit, Lock } from 'lu
 import { useRouter } from 'next/navigation';
 import Header from '../../shared/components/header/header';
 import Footer from '../../shared/components/footer/footer';
+import Categories from '../../shared/components/categories/categories';
 
 interface UserData {
     name: string;
@@ -57,6 +58,12 @@ export default function AccountPage() {
         }
     };
 
+    const handleCategoryClick = (categoryId: string) => {
+        // Navigate to home with category filter or specific category page
+        // For now, just redirect to home as that's where filtering happens
+        router.push(`/?category=${categoryId}`);
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -70,6 +77,7 @@ export default function AccountPage() {
     return (
         <div className="flex flex-col min-h-screen">
             <Header products={[]} />
+            <Categories onCategoryClick={handleCategoryClick} />
 
             <main className="flex-grow bg-white py-8 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
