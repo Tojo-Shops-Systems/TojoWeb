@@ -23,23 +23,21 @@ export default function AccountPage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                console.log('Fetching user data from:', Env.user);
                 const response = await fetch(Env.user, {
                     credentials: 'include'
                 });
 
-                console.log('User fetch response status:', response.status);
-
                 if (response.ok) {
                     const data = await response.json();
-                    console.log('User fetch data:', data);
+                    // Handle both response structures:
+                    // 1. { result: true, user: { ... } }
+                    // 2. { id: 1, name: "...", ... } (direct user object)
                     if (data.result && data.user) {
                         setUser(data.user);
-                    } else {
-                        console.warn('User data structure mismatch or missing user:', data);
+                    } else if (data.id || data.name) {
+                        setUser(data);
                     }
                 } else {
-                    console.warn('User fetch failed, redirecting to auth');
                     // If not authenticated, redirect to login
                     router.push('/auth');
                 }
