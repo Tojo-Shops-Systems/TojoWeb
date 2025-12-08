@@ -32,7 +32,12 @@ const ProductPanel = ({ isOpen, onClose, productCode }: ProductPanelProps) => {
                     const response = await fetch(`${Env.showSpecifyProduct}${productCode}`);
                     const data: ApiResponse = await response.json();
                     if (data.result) {
-                        setProduct(data.data);
+                        const productData = data.data;
+                        // Ensure ID exists
+                        if (!productData.id && productData.product_code) {
+                            productData.id = productData.product_code;
+                        }
+                        setProduct(productData);
                     }
                 } catch (error) {
                     console.error("Error fetching product details:", error);
