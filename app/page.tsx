@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Env } from "../env";
 import { Product } from "../shared/types/types";
 import ProductPanel from "../shared/components/product/product";
+import Cart from "../shared/components/cart/cart";
 
 interface ApiResponse {
   result: boolean;
@@ -21,6 +22,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -80,7 +82,12 @@ export default function Home() {
 
   return (
     <div className="bg-white min-h-screen">
-      <Header products={allProducts} onProductClick={handleProductClick} onCategoryClick={handleCategoryClick} />
+      <Header
+        products={allProducts}
+        onProductClick={handleProductClick}
+        onCategoryClick={handleCategoryClick}
+        onCartClick={() => setIsCartOpen(true)}
+      />
       <Categories onCategoryClick={handleCategoryClick} />
 
       <main className="max-w-7xl mx-auto px-6 py-8">
@@ -146,6 +153,10 @@ export default function Home() {
         isOpen={isPanelOpen}
         onClose={() => setIsPanelOpen(false)}
         productCode={selectedProductCode}
+      />
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
       />
     </div>
   );

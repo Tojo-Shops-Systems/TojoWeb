@@ -11,4 +11,8 @@ export const Env = {
     logout: `${BASE_URL}/api/auth/logout`,
     logueado: `${BASE_URL}/api/logueado`,
     user: `${BASE_URL}/api/user`,
+    createCart: `${BASE_URL}/api/cart/createCart`,
+    addProductToCart: `${BASE_URL}/api/cart/addProductToCart`,
+    removeProductFromCart: `${BASE_URL}/api/cart/removeProductFromCart`,
+    getCart: `${BASE_URL}/api/cart/getCart`,
 };

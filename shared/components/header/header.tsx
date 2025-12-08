@@ -12,6 +12,7 @@ interface HeaderProps {
     products?: Product[];
     onProductClick?: (productCode: string) => void;
     onCategoryClick?: (categoryId: string) => void;
+    onCartClick?: () => void;
 }
 
 const SearchBar = ({ products, onProductClick }: { products: Product[], onProductClick?: (code: string) => void }) => {
@@ -111,7 +112,7 @@ const SearchBar = ({ products, onProductClick }: { products: Product[], onProduc
     );
 };
 
-const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps) => {
+const Header = ({ products = [], onProductClick, onCategoryClick, onCartClick }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -169,7 +170,10 @@ const Header = ({ products = [], onProductClick, onCategoryClick }: HeaderProps)
                                 </Link>
 
                                 {/* Cart */}
-                                <button className="flex items-center gap-2 md:px-4 md:py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors relative">
+                                <button
+                                    onClick={onCartClick}
+                                    className="flex items-center gap-2 md:px-4 md:py-2 rounded-full text-gray-900 hover:bg-gray-100 transition-colors relative"
+                                >
                                     <div className="relative">
                                         <ShoppingCart className="w-6 h-6 md:w-5 md:h-5" />
                                         <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
