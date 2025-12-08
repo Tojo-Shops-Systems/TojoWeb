@@ -34,6 +34,7 @@ export default function Home() {
         if (data.result) {
           const mappedProducts = data.data.map((item: any) => ({
             ...item,
+            id: item.id || item.product_id, // Ensure id is captured
             price: item.product_price !== undefined ? item.product_price : item.price
           }));
           setProducts(mappedProducts);
@@ -148,10 +149,10 @@ export default function Home() {
                     // We need a product ID here, but the current mapping only explicitly has code, name, image, price.
                     // Assuming 'id' exists on the product object from API even if not fully typed in local state 'products'
                     // Type assertion might be needed or update Product interface
-                    if ((product as any).id) {
-                      addToCart((product as any).id);
+                    if (product.id) {
+                      addToCart(product.id);
                     } else {
-                      console.error("Product ID missing");
+                      console.error("Product ID missing", product);
                     }
                   }}
                   disabled={cartLoading}

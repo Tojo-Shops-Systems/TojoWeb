@@ -87,7 +87,48 @@ export const useCart = () => {
 
         setLoading(true);
         try {
-            // Try to add product
+            // 1. Check if cart exists / try to get it
+            let currentCartString = localStorage.getItem('cart_exists_' + customerId);
+            let cartExists = currentCartString === 'true';
+
+            // OPTIONAL: You can strictly call getCart API here if you don't trust local state
+            // or if you want to verify it specifically as requested:
+            if (!cartExists) {
+                const getResponse = await fetch(`${Env.getCart}?customer_id=${customerId}`, {
+                    credentials: 'include'
+                });
+
+                if (getResponse.ok) {
+                    const getData = await getResponse.json();
+                    if (getData.result) {
+                        cartExists = true;
+                        localStorage.setItem('cart_exists_' + customerId, 'true');
+                        setCart(getData.data);
+                    }
+                }
+            }
+
+            // 2. If no cart, Create it
+            if (!cartExists) {
+                const createResponse = await fetch(Env.createCart, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_id: customerId, items: [] }),
+                    credentials: 'include'
+                });
+                const createData = await createResponse.json();
+                if (createData.result) {
+                    cartExists = true;
+                    localStorage.setItem('cart_exists_' + customerId, 'true');
+                    setCart(createData.data);
+                } else {
+                    alert("Error al crear el carrito: " + createData.msg);
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // 3. Add Product to Cart
             const response = await fetch(Env.addProductToCart, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -100,26 +141,15 @@ export const useCart = () => {
             if (data.result) {
                 setCart(data.data);
                 alert("Producto agregado al carrito");
-            } else if (response.status === 404) {
-                // Cart not found, try to create it then add product
-                const newCart = await createCart();
-                if (newCart) {
-                    // Retry add
-                    const retryResponse = await fetch(Env.addProductToCart, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ customer_id: customerId, product_id: productId }),
-                        credentials: 'include'
-                    });
-                    const retryData = await retryResponse.json();
-                    if (retryData.result) {
-                        setCart(retryData.data);
-                        alert("Producto agregado al carrito");
-                    }
-                }
             } else {
-                alert(data.msg || "Error al agregar al carrito");
+                // Should not happen if step 2 succeeded, but just in case
+                if (response.status === 404) {
+                    alert("Error: El carrito no se encontró incluso después de intentarlo crear.");
+                } else {
+                    alert(data.msg || "Error al agregar al carrito");
+                }
             }
+
         } catch (error) {
             console.error("Error adding to cart:", error);
             alert("Error al agregar al carrito");
