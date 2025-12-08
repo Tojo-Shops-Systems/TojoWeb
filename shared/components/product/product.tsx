@@ -5,6 +5,7 @@ import { X, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { Env } from '../../../env';
 import { ProductDetail } from '../../types/types';
+import { useCart } from '../../hooks/useCart';
 
 interface ProductPanelProps {
     isOpen: boolean;
@@ -21,6 +22,7 @@ interface ApiResponse {
 const ProductPanel = ({ isOpen, onClose, productCode }: ProductPanelProps) => {
     const [product, setProduct] = useState<ProductDetail | null>(null);
     const [loading, setLoading] = useState(false);
+    const { addToCart, loading: cartLoading } = useCart();
 
     useEffect(() => {
         if (isOpen && productCode) {
@@ -112,9 +114,19 @@ const ProductPanel = ({ isOpen, onClose, productCode }: ProductPanelProps) => {
                                 </div>
 
                                 {/* Actions */}
-                                <button className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-200">
-                                    <ShoppingCart className="w-5 h-5" />
-                                    AÑADIR AL CARRITO
+                                <button
+                                    onClick={() => product && addToCart(product.id)}
+                                    disabled={cartLoading}
+                                    className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {cartLoading ? (
+                                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                                    ) : (
+                                        <>
+                                            <ShoppingCart className="w-5 h-5" />
+                                            AÑADIR AL CARRITO
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </div>

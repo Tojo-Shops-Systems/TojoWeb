@@ -7,12 +7,14 @@ export interface Product {
 
 
 export interface ProductDetail {
+    id: number | string;
     product_code: string;
     product_name: string;
     product_url_image: string;
     product_description: string;
     product_price: number;
     category_id: number | null;
+    product_stock?: number;
 }
 
 export interface Category {

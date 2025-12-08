@@ -9,6 +9,7 @@ import { Env } from "../env";
 import { Product } from "../shared/types/types";
 import ProductPanel from "../shared/components/product/product";
 import Cart from "../shared/components/cart/cart";
+import { useCart } from "../shared/hooks/useCart";
 
 interface ApiResponse {
   result: boolean;
@@ -23,6 +24,7 @@ export default function Home() {
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const { addToCart, loading: cartLoading } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -139,8 +141,24 @@ export default function Home() {
                 </p>
 
                 {/* Add to Cart Button */}
-                <button className="w-full py-2 px-4 border border-red-600 text-red-600 text-xs font-bold rounded hover:bg-red-600 hover:text-white transition-colors uppercase">
-                  Añadir al carrito
+                <button
+                  className="w-full py-2 px-4 border border-red-600 text-red-600 text-xs font-bold rounded hover:bg-red-600 hover:text-white transition-colors uppercase disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent opening product panel
+                    // We need a product ID here, but the current mapping only explicitly has code, name, image, price.
+                    // Assuming 'id' exists on the product object from API even if not fully typed in local state 'products'
+                    // Type assertion might be needed or update Product interface
+                    if ((product as any).id) {
+                      addToCart((product as any).id);
+                    } else {
+                      console.error("Product ID missing");
+                    }
+                  }}
+                  disabled={cartLoading}
+                >
+                  {cartLoading ? (
+                    <span className="flex items-center justify-center gap-1">...</span>
+                  ) : "Añadir al carrito"}
                 </button>
               </div>
             ))}
