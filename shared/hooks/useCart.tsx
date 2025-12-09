@@ -38,51 +38,28 @@ export const useCart = () => {
         fetchUser();
     }, []);
 
-    // Initialize cart (Create -> Get) when customerId is available
-    useEffect(() => {
+    // Exposed fetch function to allow manual refresh
+    const refreshCart = useCallback(async () => {
         if (!customerId) return;
-
-        const initializeCart = async () => {
-            // 1. Try to create cart or verify existence
-            try {
-                const createResponse = await fetch(Env.createCart, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: [] }),
-                    credentials: 'include'
-                });
-
-                // If 200 (Created) OR 409 (Exists), we proceed to Get.
-                if (createResponse.ok || createResponse.status === 409) {
-                    await fetchCart();
-                } else {
-                    console.error("Error creating cart:", createResponse.status);
-                    // Attempt fetch anyway as fallback
-                    await fetchCart();
+        try {
+            const response = await fetch(Env.getCart, {
+                credentials: 'include'
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data.result) {
+                    setCart(data.data);
                 }
-            } catch (error) {
-                console.error("Error initializing cart:", error);
             }
-        };
-
-        const fetchCart = async () => {
-            try {
-                const response = await fetch(`${Env.getCart}`, {
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.result) {
-                        setCart(data.data);
-                    }
-                }
-            } catch (error) {
-                console.error("Error fetching cart:", error);
-            }
-        };
-
-        initializeCart();
+        } catch (error) {
+            console.error("Error fetching cart:", error);
+        }
     }, [customerId]);
+
+    // Initial fetch on mount/login
+    useEffect(() => {
+        refreshCart();
+    }, [refreshCart]);
 
     const addToCart = async (productId: string | number) => {
         if (!customerId) {
@@ -92,6 +69,23 @@ export const useCart = () => {
 
         setLoading(true);
         try {
+            // 1. Check if cart exists via Get
+            const getResponse = await fetch(Env.getCart, {
+                credentials: 'include'
+            });
+
+            // If NOT 200 OK, Create it
+            if (getResponse.status !== 200) {
+                await fetch(Env.createCart, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: [] }),
+                    credentials: 'include'
+                });
+                // We proceed to add regardless of create result, or assume success/overlap handling by backend
+            }
+
+            // 2. Add Product
             const response = await fetch(Env.addProductToCart, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -128,6 +122,7 @@ export const useCart = () => {
     return {
         cart,
         loading,
-        addToCart
+        addToCart,
+        refreshCart
     };
 };

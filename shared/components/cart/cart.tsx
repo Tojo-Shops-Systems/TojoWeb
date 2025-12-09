@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { X, ShoppingCart } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 
@@ -9,7 +11,13 @@ interface CartProps {
 }
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
-    const { cart, loading } = useCart();
+    const { cart, loading, refreshCart } = useCart();
+
+    useEffect(() => {
+        if (isOpen) {
+            refreshCart();
+        }
+    }, [isOpen, refreshCart]);
 
     return (
         <>
