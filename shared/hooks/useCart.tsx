@@ -89,17 +89,20 @@ export const useCart = () => {
                 });
             }
 
+            const payload = {
+                customer_id: customerId,
+                product_id: product.id,
+                product_name: product.productName,
+                product_price: product.price,
+                product_image: product.product_url_image
+            };
+            console.log("Sending AddToCart Payload:", payload); // Debug log
+
             // 2. Add Product
             const response = await fetch(Env.addProductToCart, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    customer_id: customerId,
-                    product_id: product.id,
-                    product_name: product.productName,
-                    product_price: product.price,
-                    product_image: product.product_url_image
-                }),
+                body: JSON.stringify(payload),
                 credentials: 'include'
             });
 
