@@ -151,7 +151,7 @@ export default function Home() {
                     // Type assertion might be needed or update Product interface
                     const productId = product.id || product.product_code;
                     if (productId) {
-                      addToCart(productId);
+                      addToCart(product);
                     } else {
                       console.error("Product ID missing", product);
                     }

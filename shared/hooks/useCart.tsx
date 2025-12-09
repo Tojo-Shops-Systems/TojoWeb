@@ -63,7 +63,7 @@ export const useCart = () => {
         refreshCart();
     }, [refreshCart]);
 
-    const addToCart = async (productId: string | number) => {
+    const addToCart = async (product: Product) => {
         if (!customerId) {
             alert("Por favor inicia sesión para agregar productos al carrito");
             return;
@@ -82,7 +82,7 @@ export const useCart = () => {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        customer: customerId,
+                        customer_id: customerId,
                         items: []
                     }),
                     credentials: 'include'
@@ -94,8 +94,11 @@ export const useCart = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customer: customerId,
-                    product_id: productId
+                    customer_id: customerId,
+                    product_id: product.id,
+                    product_name: product.productName,
+                    product_price: product.price,
+                    product_image: product.product_url_image
                 }),
                 credentials: 'include'
             });
@@ -135,7 +138,7 @@ export const useCart = () => {
                 // User said "public function removeProductFromCart(Request $request)" which handles body, suggesting POST.
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customer: customerId,
+                    customer_id: customerId,
                     product_id: productId
                 }),
                 credentials: 'include'
