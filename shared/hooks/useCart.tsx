@@ -38,46 +38,51 @@ export const useCart = () => {
         fetchUser();
     }, []);
 
-    // Fetch cart when customerId is available
+    // Initialize cart (Create -> Get) when customerId is available
     useEffect(() => {
         if (!customerId) return;
 
-        const fetchCart = async () => {
+        const initializeCart = async () => {
+            // 1. Try to create cart or verify existence
             try {
-                const response = await fetch(`${Env.getCart}?customer_id=${customerId}`, {
+                const createResponse = await fetch(Env.createCart, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ items: [] }),
                     credentials: 'include'
                 });
-                const data = await response.json();
-                if (data.result) {
-                    setCart(data.data);
+
+                // If 200 (Created) OR 409 (Exists), we proceed to Get.
+                if (createResponse.ok || createResponse.status === 409) {
+                    await fetchCart();
+                } else {
+                    console.error("Error creating cart:", createResponse.status);
+                    // Attempt fetch anyway as fallback
+                    await fetchCart();
+                }
+            } catch (error) {
+                console.error("Error initializing cart:", error);
+            }
+        };
+
+        const fetchCart = async () => {
+            try {
+                const response = await fetch(`${Env.getCart}`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.result) {
+                        setCart(data.data);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching cart:", error);
             }
         };
 
-        fetchCart();
+        initializeCart();
     }, [customerId]);
-
-    const createCart = async () => {
-        if (!customerId) return null;
-        try {
-            const response = await fetch(Env.createCart, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ customer_id: customerId, items: [] }),
-                credentials: 'include'
-            });
-            const data = await response.json();
-            if (data.result) {
-                setCart(data.data);
-                return data.data;
-            }
-        } catch (error) {
-            console.error("Error creating cart:", error);
-        }
-        return null;
-    };
 
     const addToCart = async (productId: string | number) => {
         if (!customerId) {
@@ -87,63 +92,10 @@ export const useCart = () => {
 
         setLoading(true);
         try {
-            // 1. Check if cart exists / try to get it
-            let currentCartString = localStorage.getItem('cart_exists_' + customerId);
-            let cartExists = currentCartString === 'true';
-
-            // OPTIONAL: You can strictly call getCart API here if you don't trust local state
-            // or if you want to verify it specifically as requested:
-            if (!cartExists) {
-                const getResponse = await fetch(`${Env.getCart}?customer_id=${customerId}`, {
-                    credentials: 'include'
-                });
-
-                if (getResponse.ok) {
-                    const getData = await getResponse.json();
-                    if (getData.result) {
-                        cartExists = true;
-                        localStorage.setItem('cart_exists_' + customerId, 'true');
-                        setCart(getData.data);
-                    }
-                }
-            }
-
-            // 2. If no cart, Create it
-            if (!cartExists) {
-                const createResponse = await fetch(Env.createCart, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ customer_id: customerId, items: [] }),
-                    credentials: 'include'
-                });
-
-                const createText = await createResponse.text();
-                let createData;
-                try {
-                    createData = createText ? JSON.parse(createText) : {};
-                } catch (e) {
-                    console.error("Failed to parse create cart JSON response:", createText);
-                    alert("Error al crear carrito: Respuesta del servidor no válida");
-                    setLoading(false);
-                    return;
-                }
-
-                if (createData.result) {
-                    cartExists = true;
-                    localStorage.setItem('cart_exists_' + customerId, 'true');
-                    setCart(createData.data);
-                } else {
-                    alert("Error al crear el carrito: " + createData.msg);
-                    setLoading(false);
-                    return;
-                }
-            }
-
-            // 3. Add Product to Cart
             const response = await fetch(Env.addProductToCart, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ customer_id: customerId, product_id: productId }),
+                body: JSON.stringify({ product_id: productId }),
                 credentials: 'include'
             });
 
@@ -161,12 +113,8 @@ export const useCart = () => {
                 setCart(data.data);
                 alert("Producto agregado al carrito");
             } else {
-                console.warn("Add to cart logical failure. Raw text:", text, "Parsed data:", data);
-                if (response.status === 404) {
-                    alert("Error: El carrito no se encontró incluso después de intentarlo crear.");
-                } else {
-                    alert(data.msg || ("Error al agregar al carrito (" + response.status + ") - Revisa la consola para más detalles"));
-                }
+                console.warn("Add to cart failure. Raw:", text);
+                alert(data.msg || ("Error al agregar al carrito (" + response.status + ")"));
             }
 
         } catch (error) {
