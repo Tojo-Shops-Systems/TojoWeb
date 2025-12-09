@@ -116,7 +116,18 @@ export const useCart = () => {
                     body: JSON.stringify({ customer_id: customerId, items: [] }),
                     credentials: 'include'
                 });
-                const createData = await createResponse.json();
+
+                const createText = await createResponse.text();
+                let createData;
+                try {
+                    createData = createText ? JSON.parse(createText) : {};
+                } catch (e) {
+                    console.error("Failed to parse create cart JSON response:", createText);
+                    alert("Error al crear carrito: Respuesta del servidor no válida");
+                    setLoading(false);
+                    return;
+                }
+
                 if (createData.result) {
                     cartExists = true;
                     localStorage.setItem('cart_exists_' + customerId, 'true');
@@ -136,7 +147,15 @@ export const useCart = () => {
                 credentials: 'include'
             });
 
-            const data = await response.json();
+            const text = await response.text();
+            let data;
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (e) {
+                console.error("Failed to parse JSON response:", text);
+                alert("Error del servidor: Respuesta no válida");
+                return;
+            }
 
             if (data.result) {
                 setCart(data.data);
@@ -146,7 +165,7 @@ export const useCart = () => {
                 if (response.status === 404) {
                     alert("Error: El carrito no se encontró incluso después de intentarlo crear.");
                 } else {
-                    alert(data.msg || "Error al agregar al carrito");
+                    alert(data.msg || "Error al agregar al carrito (" + response.status + ")");
                 }
             }
 
