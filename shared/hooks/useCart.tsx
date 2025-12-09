@@ -142,8 +142,8 @@ export const useCart = () => {
                 // User said "public function removeProductFromCart(Request $request)" which handles body, suggesting POST.
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customer_id: customerId,
-                    product_id: productId
+                    customer_id: String(customerId),
+                    product_id: String(productId)
                 }),
                 credentials: 'include'
             });
