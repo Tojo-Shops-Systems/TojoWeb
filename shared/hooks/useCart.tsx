@@ -96,8 +96,6 @@ export const useCart = () => {
                 product_price: product.price,
                 product_image: product.product_url_image
             };
-            console.log("Sending AddToCart Payload:", payload); // Debug log
-
             // 2. Add Product
             const response = await fetch(Env.addProductToCart, {
                 method: 'POST',
