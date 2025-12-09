@@ -23,10 +23,11 @@ export const useCart = () => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await fetch(Env.user, { credentials: 'include' });
+                // Use getUserInfo as requested
+                const response = await fetch(Env.getUserInfo, { credentials: 'include' });
                 if (response.ok) {
-                    const data = await response.json();
-                    const user = data.result ? data.user : data;
+                    const user = await response.json();
+                    // User example: { "id": 2, ... }
                     if (user && user.id) {
                         setCustomerId(user.id);
                     }
@@ -39,10 +40,11 @@ export const useCart = () => {
     }, []);
 
     // Exposed fetch function to allow manual refresh
+    // Pass customer_id in query as requested
     const refreshCart = useCallback(async () => {
         if (!customerId) return;
         try {
-            const response = await fetch(Env.getCart, {
+            const response = await fetch(`${Env.getCart}?customer_id=${customerId}`, {
                 credentials: 'include'
             });
             if (response.ok) {
@@ -70,7 +72,7 @@ export const useCart = () => {
         setLoading(true);
         try {
             // 1. Check if cart exists via Get
-            const getResponse = await fetch(Env.getCart, {
+            const getResponse = await fetch(`${Env.getCart}?customer_id=${customerId}`, {
                 credentials: 'include'
             });
 
@@ -79,17 +81,22 @@ export const useCart = () => {
                 await fetch(Env.createCart, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ items: [] }),
+                    body: JSON.stringify({
+                        customer_id: customerId,
+                        items: []
+                    }),
                     credentials: 'include'
                 });
-                // We proceed to add regardless of create result, or assume success/overlap handling by backend
             }
 
             // 2. Add Product
             const response = await fetch(Env.addProductToCart, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ product_id: productId }),
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    product_id: productId
+                }),
                 credentials: 'include'
             });
 
@@ -119,10 +126,39 @@ export const useCart = () => {
         }
     };
 
+    const removeFromCart = async (productId: string | number) => {
+        if (!customerId) return;
+        setLoading(true);
+        try {
+            const response = await fetch(Env.removeProductFromCart, {
+                method: 'POST', // Usually DELETE but sticking to user snippet if POST was implied or typical in their stack.
+                // User said "public function removeProductFromCart(Request $request)" which handles body, suggesting POST.
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    customer_id: customerId,
+                    product_id: productId
+                }),
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (data.result) {
+                setCart(data.data);
+                alert("Producto eliminado");
+            } else {
+                alert(data.msg || "Error al eliminar producto");
+            }
+        } catch (error) {
+            console.error("Error removing from cart:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         cart,
         loading,
         addToCart,
+        removeFromCart,
         refreshCart
     };
 };

@@ -15,4 +15,5 @@ export const Env = {
     addProductToCart: `${BASE_URL}/api/cart/addProductToCart`,
     removeProductFromCart: `${BASE_URL}/api/cart/removeProductFromCart`,
     getCart: `${BASE_URL}/api/cart/getCart`,
+    getUserInfo: `${BASE_URL}/api/user`
 };
