@@ -143,7 +143,7 @@ export const useCart = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     customer_id: String(customerId),
-                    product_id: String(productId)
+                    product_id: Number(productId)
                 }),
                 credentials: 'include'
             });
