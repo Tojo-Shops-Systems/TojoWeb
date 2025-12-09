@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { Menu, ShoppingCart, Search, User, X } from 'lucide-react';
 import MobileMenu from './mobile-menu';
+import { useCart } from '../../hooks/useCart';
 import { Product } from '../../types/types';
 import Image from 'next/image';
 import { Env } from "../../../env";
@@ -115,6 +116,7 @@ const SearchBar = ({ products, onProductClick }: { products: Product[], onProduc
 const Header = ({ products = [], onProductClick, onCategoryClick, onCartClick }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const { cart } = useCart();
 
     useEffect(() => {
         const checkLoginStatus = async () => {
@@ -177,7 +179,7 @@ const Header = ({ products = [], onProductClick, onCategoryClick, onCartClick }:
                                     <div className="relative">
                                         <ShoppingCart className="w-6 h-6 md:w-5 md:h-5" />
                                         <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                                            0
+                                            {cart?.items?.length || 0}
                                         </span>
                                     </div>
                                     <span className="hidden md:block text-sm font-medium">Carrito</span>
