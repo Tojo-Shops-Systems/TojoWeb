@@ -120,7 +120,20 @@ const ProductPanel = ({ isOpen, onClose, productCode }: ProductPanelProps) => {
 
                                 {/* Actions */}
                                 <button
-                                    onClick={() => product && addToCart(product.id)}
+                                    onClick={() => {
+                                        if (product) {
+                                            // Map ProductDetail (has product_name, product_price) to Product (has productName, price)
+                                            // The useCart hook expects 'Product' interface
+                                            const productForCart = {
+                                                id: product.id,
+                                                product_code: product.product_code,
+                                                productName: product.product_name, // Map name
+                                                price: product.product_price,      // Map price
+                                                product_url_image: product.product_url_image
+                                            };
+                                            addToCart(productForCart);
+                                        }
+                                    }}
                                     disabled={cartLoading}
                                     className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
