@@ -3,9 +3,11 @@ import { Env } from '../../env';
 import { Product } from '../types/types';
 
 interface CartItem {
-    product_id: number;
+    product_id: string; // Changed to string as per API example "750..."
     quantity: number;
-    // Add other relevant fields if needed based on API response
+    name: string;
+    price: number;
+    image: string;
 }
 
 interface CartData {
@@ -63,7 +65,7 @@ export const useCart = () => {
         refreshCart();
     }, [refreshCart]);
 
-    const addToCart = async (product: Product) => {
+    const addToCart = async (product: Product, quantity: number = 1) => {
         if (!customerId) {
             alert("Por favor inicia sesión para agregar productos al carrito");
             return;
@@ -94,7 +96,8 @@ export const useCart = () => {
                 product_id: product.id,
                 product_name: product.productName,
                 product_price: product.price,
-                product_image: product.product_url_image
+                product_image: product.product_url_image,
+                quantity: quantity
             };
             // 2. Add Product
             const response = await fetch(Env.addProductToCart, {
