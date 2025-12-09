@@ -10,7 +10,7 @@ interface CartItem {
 
 interface CartData {
     id: number;
-    customer_id: number;
+    customer: number;
     items: CartItem[];
 }
 
@@ -82,7 +82,7 @@ export const useCart = () => {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        customer_id: customerId,
+                        customer: customerId,
                         items: []
                     }),
                     credentials: 'include'
@@ -94,7 +94,7 @@ export const useCart = () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customer_id: customerId,
+                    customer: customerId,
                     product_id: productId
                 }),
                 credentials: 'include'
@@ -135,7 +135,7 @@ export const useCart = () => {
                 // User said "public function removeProductFromCart(Request $request)" which handles body, suggesting POST.
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    customer_id: customerId,
+                    customer: customerId,
                     product_id: productId
                 }),
                 credentials: 'include'
