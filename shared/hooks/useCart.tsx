@@ -161,8 +161,7 @@ export const useCart = () => {
                 setCart(data.data);
                 alert("Producto agregado al carrito");
             } else {
-                console.warn("Add to cart logical failure:", data); // Debug log
-                // Should not happen if step 2 succeeded, but just in case
+                console.warn("Add to cart logical failure. Raw text:", text, "Parsed data:", data);
                 if (response.status === 404) {
                     alert("Error: El carrito no se encontró incluso después de intentarlo crear.");
                 } else {
