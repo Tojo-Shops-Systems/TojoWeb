@@ -149,7 +149,9 @@ export const useCart = () => {
             });
             const data = await response.json();
             if (data.result) {
-                setCart(data.data);
+                // Backend returns the cart model, but it might not have the updated items or full product details joined.
+                // It's safer to refresh the cart from the getCart endpoint which guarantees the correct structure.
+                await refreshCart();
                 alert("Producto eliminado");
             } else {
                 alert(data.msg || "Error al eliminar producto");
