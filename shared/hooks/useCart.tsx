@@ -2,6 +2,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { Env } from '../../env';
 import { Product } from '../types/types';
 
+interface Branch {
+    branch_id: number;
+    branchName: string;
+    address: string;
+    id: string;
+}
+
 interface CartItem {
     product_id: string; // Changed to string as per API example "750..."
     quantity: number;
@@ -163,11 +170,62 @@ export const useCart = () => {
         }
     };
 
+    const getBranches = async (): Promise<Branch[]> => {
+        try {
+            const response = await fetch(Env.getBranches);
+            const data = await response.json();
+            if (data.result) {
+                return data.data;
+            }
+        } catch (error) {
+            console.error("Error fetching branches:", error);
+        }
+        return [];
+    };
+
+    const placeOrder = async (branchId: number) => {
+        if (!cart || !cart.id || !customerId) return { success: false, msg: "Datos de carrito faltantes" };
+
+        setLoading(true);
+        try {
+            const payload = {
+                data: {
+                    id: cart.id,
+                    customer: customerId,
+                    items: cart.items
+                },
+                branch_id: branchId
+            };
+
+            const response = await fetch(Env.ticket, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+            if (data.result) {
+                setCart(null); // Cart is destroyed on backend
+                return { success: true, ticket: data.data };
+            } else {
+                return { success: false, msg: data.msg || "Error al procesar el pedido" };
+            }
+        } catch (error) {
+            console.error("Error placing order:", error);
+            return { success: false, msg: "Error de conexión al procesar el pedido" };
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return {
         cart,
         loading,
         addToCart,
         removeFromCart,
-        refreshCart
+        refreshCart,
+        getBranches,
+        placeOrder
     };
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { X, ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 import { Product } from '../../types/types';
@@ -11,11 +11,21 @@ interface CartProps {
 }
 
 const Cart = ({ isOpen, onClose }: CartProps) => {
-    const { cart, loading, refreshCart, addToCart, removeFromCart } = useCart();
+    const { cart, loading, refreshCart, addToCart, removeFromCart, getBranches, placeOrder } = useCart();
+
+    // Checkout state
+    const [view, setView] = useState<'cart' | 'checkout' | 'success'>('cart');
+    const [branches, setBranches] = useState<any[]>([]);
+    const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
+    const [orderLoading, setOrderLoading] = useState(false);
+    const [ticket, setTicket] = useState<any>(null);
 
     useEffect(() => {
         if (isOpen) {
             refreshCart();
+            setView('cart'); // Reset view on open
+            setTicket(null);
+            setSelectedBranch(null);
         }
     }, [isOpen, refreshCart]);
 
@@ -25,7 +35,6 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
     }, [cart]);
 
     const handleIncrement = (item: any) => {
-        // Construct a partial Product object to satisfy the interface
         const productShim: Product = {
             id: item.product_id,
             product_code: item.product_id,
@@ -41,6 +50,29 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
             style: 'currency',
             currency: 'MXN'
         }).format(price);
+    };
+
+    const handleCheckoutStart = async () => {
+        const branchList = await getBranches();
+        if (branchList && branchList.length > 0) {
+            setBranches(branchList);
+            setView('checkout');
+        } else {
+            alert("No se pudieron cargar las sucursales. Intenta más tarde.");
+        }
+    };
+
+    const handlePlaceOrder = async () => {
+        if (!selectedBranch) return;
+        setOrderLoading(true);
+        const result = await placeOrder(selectedBranch);
+        setOrderLoading(false);
+        if (result.success) {
+            setTicket(result.ticket);
+            setView('success');
+        } else {
+            alert(result.msg);
+        }
     };
 
     return (
@@ -60,7 +92,8 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                     <div className="flex items-center gap-2 text-gray-800">
                         <ShoppingCart className="w-6 h-6" />
                         <h2 className="text-xl font-normal text-gray-600">
-                            Carrito <span className="text-gray-400 font-light">({cart?.items?.length || 0} artículo{cart?.items?.length !== 1 ? 's' : ''})</span>
+                            {view === 'cart' ? 'Carrito' : view === 'checkout' ? 'Seleccionar Sucursal' : 'Pedido Confirmado'}
+                            {view === 'cart' && <span className="text-gray-400 font-light"> ({cart?.items?.length || 0} artículo{cart?.items?.length !== 1 ? 's' : ''})</span>}
                         </h2>
                     </div>
                     <button
@@ -74,9 +107,44 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
 
                 {/* Content */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {loading && !cart ? (
+                    {loading && !cart && view === 'cart' ? (
                         <div className="flex justify-center items-center h-full">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00AEEF]"></div>
+                        </div>
+                    ) : view === 'success' && ticket ? (
+                        <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-500 mb-2">
+                                <span className="text-3xl">✓</span>
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-800">¡Pedido Exitoso!</h3>
+                            <p className="text-gray-600">Tu ticket: <span className="font-mono font-bold">{ticket.ticketID}</span></p>
+                            <p className="text-gray-500 text-sm">Total: {formatPrice(ticket.totalAmount)}</p>
+                            <button onClick={onClose} className="text-[#00AEEF] hover:underline mt-4">
+                                Cerrar ventana
+                            </button>
+                        </div>
+                    ) : view === 'checkout' ? (
+                        <div className="space-y-4">
+                            <p className="text-gray-600 mb-4">Selecciona la sucursal donde recogerás tu pedido:</p>
+                            {branches.map(branch => (
+                                <button
+                                    key={branch.branch_id}
+                                    onClick={() => setSelectedBranch(branch.branch_id)}
+                                    className={`w-full text-left p-4 rounded-xl border-2 transition-all ${selectedBranch === branch.branch_id
+                                            ? 'border-[#00AEEF] bg-blue-50 text-[#00AEEF]'
+                                            : 'border-gray-100 hover:border-gray-200 text-gray-700'
+                                        }`}
+                                >
+                                    <div className="font-medium text-lg">{branch.branchName}</div>
+                                    <div className="text-sm opacity-80">{branch.address}</div>
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setView('cart')}
+                                className="text-gray-500 hover:text-gray-800 text-sm flex items-center gap-1 mt-4"
+                            >
+                                ← Volver al carrito
+                            </button>
                         </div>
                     ) : cart && cart.items && cart.items.length > 0 ? (
                         <div className="space-y-6">
@@ -84,7 +152,6 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                                 <div key={index} className="flex gap-4">
                                     {/* Product Image */}
                                     <div className="w-24 h-24 flex-shrink-0 bg-white border border-gray-100 rounded-lg p-2 flex items-center justify-center relative overflow-hidden group">
-                                        {/* Red triangle banner mockup inspired by image if needed, keeping simple standard design first */}
                                         <img
                                             src={item.image}
                                             alt={item.name}
@@ -96,7 +163,7 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                                     <div className="flex-1 flex flex-col min-w-0">
                                         <div className="flex justify-between items-start mb-1">
                                             <div className="pr-4">
-                                                <p className="text-xs text-gray-400 mb-1 line-clamp-1">{item.name.split(' ').slice(0, 2).join(' ')}...</p> {/* Trying to mimic the model number look if possible, or just name truncated */}
+                                                <p className="text-xs text-gray-400 mb-1 line-clamp-1">{item.name.split(' ').slice(0, 2).join(' ')}...</p>
                                                 <h3 className="text-sm text-gray-700 font-medium leading-tight line-clamp-2">
                                                     {item.name}
                                                 </h3>
@@ -105,7 +172,7 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                                                 onClick={() => removeFromCart(item.product_id)}
                                                 className="text-gray-400 hover:text-red-500 flex items-center text-xs gap-1 whitespace-nowrap"
                                             >
-                                                <X className="w-3 h-3" />
+                                                <Trash2 className="w-3 h-3 mr-1" />
                                                 <span className="underline decoration-1">Eliminar</span>
                                             </button>
                                         </div>
@@ -158,31 +225,54 @@ const Cart = ({ isOpen, onClose }: CartProps) => {
                 </div>
 
                 {/* Footer */}
-                {cart && cart.items && cart.items.length > 0 && (
+                {cart && cart.items && cart.items.length > 0 && view !== 'success' && (
                     <div className="p-6 border-t border-gray-100 bg-white">
-                        <div className="text-right mb-2">
-                            <p className="text-xs text-green-500 font-medium">
-                                Recibe $0.00 tu próxima compra
-                            </p>
-                        </div>
-
-                        <div className="flex justify-between items-baseline mb-6">
-                            <span className="text-2xl font-medium text-gray-900">Subtotal :</span>
-                            <span className="text-2xl font-bold text-gray-900">{formatPrice(subtotal)}</span>
-                        </div>
-
-                        <button className="w-full bg-[#00AEEF] hover:bg-[#009bd5] text-white font-bold py-3.5 px-4 rounded-full transition-colors mb-4 uppercase tracking-wide">
-                            PAGAR AHORA
-                        </button>
-
-                        <div className="text-center">
-                            <button
-                                onClick={onClose}
-                                className="text-[#00AEEF] font-medium hover:underline text-sm"
-                            >
-                                Seguir Comprando
-                            </button>
-                        </div>
+                        {view === 'cart' ? (
+                            <>
+                                <div className="text-right mb-2">
+                                    <p className="text-xs text-green-500 font-medium">
+                                        Recibe $0.00 tu próxima compra
+                                    </p>
+                                </div>
+                                <div className="flex justify-between items-baseline mb-6">
+                                    <span className="text-2xl font-medium text-gray-900">Subtotal :</span>
+                                    <span className="text-2xl font-bold text-gray-900">{formatPrice(subtotal)}</span>
+                                </div>
+                                <button
+                                    onClick={handleCheckoutStart}
+                                    className="w-full bg-[#00AEEF] hover:bg-[#009bd5] text-white font-bold py-3.5 px-4 rounded-full transition-colors mb-4 uppercase tracking-wide"
+                                >
+                                    PAGAR AHORA
+                                </button>
+                                <div className="text-center">
+                                    <button
+                                        onClick={onClose}
+                                        className="text-[#00AEEF] font-medium hover:underline text-sm"
+                                    >
+                                        Seguir Comprando
+                                    </button>
+                                </div>
+                            </>
+                        ) : view === 'checkout' ? (
+                            <>
+                                <div className="flex justify-between items-baseline mb-6">
+                                    <span className="text-xl font-medium text-gray-900">Total a Pagar:</span>
+                                    <span className="text-xl font-bold text-gray-900">{formatPrice(subtotal)}</span>
+                                </div>
+                                <button
+                                    onClick={handlePlaceOrder}
+                                    disabled={!selectedBranch || orderLoading}
+                                    className="w-full bg-[#00AEEF] hover:bg-[#009bd5] disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold py-3.5 px-4 rounded-full transition-colors mb-4 uppercase tracking-wide flex items-center justify-center gap-2"
+                                >
+                                    {orderLoading ? (
+                                        <>
+                                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                            PROCESANDO...
+                                        </>
+                                    ) : 'HACER PEDIDO'}
+                                </button>
+                            </>
+                        ) : null}
                     </div>
                 )}
             </div>
